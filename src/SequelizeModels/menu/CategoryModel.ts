@@ -3,6 +3,7 @@ import { sequelize } from '@/shared/infrastructure/database/sequelize.client'
 
 export class CategoryModel extends Model {
   public id!: string
+  public restaurantId!: string
   public name!: string
   public createdAt!: Date
 }
@@ -13,6 +14,11 @@ CategoryModel.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+    },
+    restaurantId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'restaurant_id',
     },
     name: {
       type: DataTypes.STRING,

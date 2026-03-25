@@ -3,6 +3,7 @@ import { sequelize } from '@/shared/infrastructure/database/sequelize.client'
 
 export class MesaModel extends Model {
   public id!: string
+  public restaurantId!: string
   public parentMesaId!: string | null
   public isActive!: boolean
 }
@@ -12,6 +13,11 @@ MesaModel.init(
     id: {
       type: DataTypes.TEXT,
       primaryKey: true,
+    },
+    restaurantId: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+      field: 'restaurant_id',
     },
     parentMesaId: {
       type: DataTypes.TEXT,

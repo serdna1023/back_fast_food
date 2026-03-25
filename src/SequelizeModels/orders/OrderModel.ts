@@ -3,6 +3,7 @@ import { sequelize } from '@/shared/infrastructure/database/sequelize.client'
 
 export class OrderModel extends Model {
   public id!: string
+  public restaurantId!: string
   public userId!: string | null
   public customerName!: string | null
   public mesaId!: string | null
@@ -21,6 +22,11 @@ OrderModel.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+    },
+    restaurantId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'restaurant_id',
     },
     userId: {
       type: DataTypes.UUID,

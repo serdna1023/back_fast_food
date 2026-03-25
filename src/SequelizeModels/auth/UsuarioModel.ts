@@ -3,9 +3,11 @@ import { sequelize } from '@/shared/infrastructure/database/sequelize.client'
 
 export class UsuarioModel extends Model {
   public id!: string
-  public name!: string
+  public restaurantId!: string
+  public username!: string
   public email!: string
-  public role!: 'ADMIN' | 'EMPLOYEE' | 'CLIENT'
+  public passwordHash!: string
+  public rol!: string
   public createdAt!: Date
 }
 
@@ -16,23 +18,33 @@ UsuarioModel.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    name: {
+    restaurantId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'restaurant_id',
+    },
+    username: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
-    role: {
-      type: DataTypes.ENUM('ADMIN', 'EMPLOYEE', 'CLIENT'),
+    passwordHash: {
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'CLIENT',
+      field: 'password_hash',
+    },
+    rol: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'STAFF',
     },
     createdAt: {
       type: DataTypes.DATE,
       field: 'created_at',
+      defaultValue: DataTypes.NOW,
     },
   },
   {

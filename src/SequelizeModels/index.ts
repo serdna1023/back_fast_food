@@ -7,6 +7,30 @@ import { OrderModel } from './orders/OrderModel'
 import { OrderItemModel } from './orders/OrderItemModel'
 import { UsuarioModel } from './auth/UsuarioModel'
 import { MesaModel } from './orders/MesaModel'
+import { RestauranteModel } from './core/RestauranteModel'
+import { RolModel } from './auth/RolModel'
+import { PermisoModel } from './auth/PermisoModel'
+import { UsuarioRolModel } from './auth/UsuarioRolModel'
+import { RolPermisoModel } from './auth/RolPermisoModel'
+import { RefreshTokenModel } from './auth/RefreshTokenModel'
+
+// --- Relaciones Multitenant (Core)
+CategoryModel.belongsTo(RestauranteModel, { foreignKey: 'restaurantId', as: 'restaurante' })
+PlatoModel.belongsTo(RestauranteModel, { foreignKey: 'restaurantId', as: 'restaurante' })
+MenuDiarioModel.belongsTo(RestauranteModel, { foreignKey: 'restaurantId', as: 'restaurante' })
+MesaModel.belongsTo(RestauranteModel, { foreignKey: 'restaurantId', as: 'restaurante' })
+OrderModel.belongsTo(RestauranteModel, { foreignKey: 'restaurantId', as: 'restaurante' })
+UsuarioModel.belongsTo(RestauranteModel, { foreignKey: 'restaurantId', as: 'restaurante' })
+
+// --- Relaciones RBAC (Gradia Style)
+UsuarioModel.belongsToMany(RolModel, { through: UsuarioRolModel, foreignKey: 'userId', as: 'roles' })
+RolModel.belongsToMany(UsuarioModel, { through: UsuarioRolModel, foreignKey: 'rolId', as: 'usuarios' })
+
+RolModel.belongsToMany(PermisoModel, { through: RolPermisoModel, foreignKey: 'rolId', as: 'permisos' })
+PermisoModel.belongsToMany(RolModel, { through: RolPermisoModel, foreignKey: 'permisoId', as: 'roles' })
+
+UsuarioModel.hasMany(RefreshTokenModel, { foreignKey: 'userId', as: 'refreshTokens' })
+RefreshTokenModel.belongsTo(UsuarioModel, { foreignKey: 'userId', as: 'usuario' })
 
 // --- Relaciones Categorías y Platos
 CategoryModel.hasMany(PlatoModel, { foreignKey: 'categoryId', as: 'platos' })
@@ -40,5 +64,11 @@ export {
   OrderModel,
   OrderItemModel,
   UsuarioModel,
-  MesaModel
+  MesaModel,
+  RestauranteModel,
+  RolModel,
+  PermisoModel,
+  UsuarioRolModel,
+  RolPermisoModel,
+  RefreshTokenModel
 }

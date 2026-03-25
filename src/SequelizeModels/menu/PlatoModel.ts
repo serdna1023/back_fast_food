@@ -4,6 +4,7 @@ import { CategoryModel } from './CategoryModel'
 
 export class PlatoModel extends Model {
   public id!: string
+  public restaurantId!: string
   public categoryId!: string
   public name!: string
   public description!: string | null
@@ -21,6 +22,11 @@ PlatoModel.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+    },
+    restaurantId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'restaurant_id',
     },
     categoryId: {
       type: DataTypes.UUID,

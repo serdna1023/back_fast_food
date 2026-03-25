@@ -1,5 +1,6 @@
 import express from 'express'
 import http from 'http'
+import cookieParser from 'cookie-parser'
 import { initSocket } from '@/shared/infrastructure/websocket/socket.server'
 import { env } from '@/shared/config/env'
 import { sequelize } from '@/shared/infrastructure/database/sequelize.client'
@@ -7,13 +8,16 @@ import { sequelize } from '@/shared/infrastructure/database/sequelize.client'
 import '@/SequelizeModels'
 import { MenuRouter } from '@/menu/routes/routes'
 import { OrderRouter } from '@/orders/routes/routes'
+import AuthRouter from '@/auth/routes/routes'
 
 const app = express()
 const server = http.createServer(app)
 
 app.use(express.json())
+app.use(cookieParser())
 
 // Rutas
+app.use('/api/auth', AuthRouter)
 app.use('/api/menu', MenuRouter)
 app.use('/api/orders', OrderRouter)
 
