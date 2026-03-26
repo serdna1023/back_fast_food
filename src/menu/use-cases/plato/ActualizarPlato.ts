@@ -2,16 +2,7 @@ import { Plato } from '@/menu/entities/Plato'
 import { IPlatoRepository } from '@/menu/repositories/interfaces/IPlatoRepository'
 import { ICategoryRepository } from '@/menu/repositories/interfaces/ICategoryRepository'
 
-export interface ActualizarPlatoDTO {
-  id: string
-  categoryId?: string
-  name?: string
-  description?: string | null
-  tipo?: 'CARTA' | 'MENU'
-  price?: number | null
-  imageUrl?: string | null
-  available?: boolean
-}
+import { ActualizarPlatoDTO } from '../../dtos/ActualizarPlatoDTO';
 
 export class ActualizarPlato {
   constructor(

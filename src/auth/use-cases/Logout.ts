@@ -1,8 +1,5 @@
-import { IRefreshTokenRepository } from '../repositories/RefreshTokenRepository';
-
-export interface LogoutRequest {
-  token?: string;
-}
+import { IRefreshTokenRepository } from '../repositories/interfaces/IRefreshTokenRepository';
+import { LogoutRequest } from '../dtos/LogoutDTO';
 
 export class Logout {
   constructor(private readonly refreshTokenRepository: IRefreshTokenRepository) {}

@@ -2,18 +2,7 @@ import { MenuDiario, TipoTiempo } from '@/menu/entities/MenuDiario'
 import { IMenuDiarioRepository } from '@/menu/repositories/interfaces/IMenuDiarioRepository'
 import { IPlatoRepository } from '@/menu/repositories/interfaces/IPlatoRepository'
 import { v4 as uuidv4 } from 'uuid'
-
-export interface PlatoMenuInput {
-  platoId: string
-  tipoTiempo: TipoTiempo
-}
-
-export interface CrearMenuDiarioDTO {
-  precio: number
-  fecha?: Date
-  creadoPor: string
-  platos: PlatoMenuInput[]
-}
+import { CrearMenuDiarioDTO, PlatoMenuInput } from '../../dtos/CrearMenuDiarioDTO'
 
 export class CrearMenuDiario {
   constructor(

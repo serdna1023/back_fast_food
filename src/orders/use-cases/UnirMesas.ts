@@ -1,20 +1,19 @@
-import { MesaModel } from '@/SequelizeModels'
+import { IMesaRepository } from '../repositories/interfaces/IMesaRepository'
 
 export class UnirMesas {
-  async execute(mesaId: string, parentMesaId: string): Promise<void> {
-    if (mesaId === parentMesaId) throw new Error('No puedes unir una mesa a sí misma')
-    
-    const mesa = await MesaModel.findByPk(mesaId)
-    const mesaMaestra = await MesaModel.findByPk(parentMesaId)
+  constructor(private readonly mesaRepository: IMesaRepository) {}
 
-    if (!mesa || !mesaMaestra) throw new Error('Una o ambas mesas no existen')
+  async execute(mesaId: string, restaurantId: string, parentMesaId: string): Promise<void> {
+    const mesa = await this.mesaRepository.findById(mesaId, restaurantId)
+    if (!mesa) throw new Error(`La mesa ${mesaId} no existe`)
 
-    // Si la mesa maestra ya es hija de otra, unir a la raíz (opcional, para evitar cadenas largas)
+    const mesaMaestra = await this.mesaRepository.findById(parentMesaId, restaurantId)
+    if (!mesaMaestra) throw new Error(`La mesa maestra ${parentMesaId} no existe`)
+
+    // Si la mesa maestra ya es hija de otra, unir a la raíz para evitar cadenas
     const targetParentId = mesaMaestra.parentMesaId || parentMesaId
 
-    await MesaModel.update(
-      { parentMesaId: targetParentId },
-      { where: { id: mesaId } }
-    )
+    mesa.unirA(targetParentId)
+    await this.mesaRepository.save(mesa)
   }
 }

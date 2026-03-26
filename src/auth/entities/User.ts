@@ -6,6 +6,7 @@ export class User {
     public readonly email: string,
     public readonly passwordHash: string,
     public readonly roles: string[] = [],
+    public readonly permissions: string[] = [],
     public readonly active: boolean = true
   ) {}
 }

@@ -6,21 +6,7 @@ import { Order, OrderModalidad } from '@/orders/entities/Order'
 import { OrderItem } from '@/orders/entities/OrderItem'
 import { getSocket } from '@/shared/infrastructure/websocket/socket.server'
 import { MesaModel } from '@/SequelizeModels'
-
-export interface ItemPedidoInput {
-  platoId?: string
-  diarioId?: string
-  cantidad: number
-  notas?: string
-}
-
-export interface CrearPedidoDTO {
-  userId?: string
-  customerName?: string
-  mesaId?: string
-  modalidad: OrderModalidad
-  items: ItemPedidoInput[]
-}
+import { CrearPedidoDTO, ItemPedidoInput } from '../dtos/CrearPedidoDTO'
 
 export class CrearPedido {
   constructor(
@@ -35,15 +21,36 @@ export class CrearPedido {
     // Lógica de Redirección de Mesas (Mesas Unidas)
     let mesaIdFinal = dto.mesaId || null
     if (mesaIdFinal) {
-      const mesa = await MesaModel.findByPk(mesaIdFinal)
+      const mesa = await MesaModel.findOne({
+        where: { id: mesaIdFinal, restaurantId: dto.restaurantId }
+      })
       if (mesa && mesa.parentMesaId) {
         mesaIdFinal = mesa.parentMesaId
         console.log(`🔀 Redirigiendo pedido de Mesa ${dto.mesaId} a Mesa Maestra ${mesaIdFinal}`)
       }
     }
 
-    const orderId = uuidv4()
-    const orderItems: OrderItem[] = []
+    // === CUENTA ABIERTA: Buscar orden existente o crear nueva ===
+    let existingOrder: Order | null = null
+
+    // Prioridad 1: Si viene un orderId explícito (del GuestToken)
+    if (dto.orderId) {
+      existingOrder = await this.orderRepository.findById(dto.orderId)
+      if (!existingOrder || existingOrder.pagoEstado === 'PAGADO') {
+        existingOrder = null // La orden ya fue pagada, crear una nueva
+      }
+    }
+
+    // Prioridad 2: Buscar por mesa activa si no hay orderId
+    if (!existingOrder && mesaIdFinal) {
+      const pedidosMesa = await this.orderRepository.findByMesa(mesaIdFinal, true)
+      if (pedidosMesa.length > 0) {
+        existingOrder = pedidosMesa[0] // Usar la primera orden activa
+      }
+    }
+
+    const orderId = existingOrder?.id || uuidv4()
+    const newItems: OrderItem[] = []
 
     for (const item of dto.items) {
       let precioUnitario = 0
@@ -74,10 +81,49 @@ export class CrearPedido {
         item.notas,
         nombrePlato
       )
-      orderItems.push(orderItem)
+      newItems.push(orderItem)
     }
 
-    const total = orderItems.reduce((sum, i) => sum + i.subtotal, 0)
+    // === Si hay orden existente, SUMAR items ===
+    if (existingOrder) {
+      const allItems = [...existingOrder.items, ...newItems]
+      const newTotal = allItems.reduce((sum, i) => sum + i.subtotal, 0)
+
+      const updatedOrder = new Order(
+        existingOrder.id,
+        existingOrder.userId,
+        existingOrder.customerName,
+        existingOrder.mesaId,
+        existingOrder.modalidad,
+        existingOrder.estado,
+        existingOrder.pagoEstado,
+        allItems,
+        newTotal,
+        existingOrder.createdAt,
+        new Date(),
+        dto.restaurantId
+      )
+
+      await this.orderRepository.save(updatedOrder)
+
+      // Notificación
+      try {
+        const io = getSocket()
+        io.to(`restaurant_${dto.restaurantId}`).emit('items_agregados', {
+          orderId: updatedOrder.id,
+          mesaId: updatedOrder.mesaId,
+          nuevosItems: newItems.length,
+          totalActualizado: updatedOrder.total
+        })
+      } catch (e) {
+        console.warn('Socket no inicializado')
+      }
+
+      return updatedOrder
+    }
+
+    // === Si NO hay orden, CREAR una nueva ===
+    const total = newItems.reduce((sum, i) => sum + i.subtotal, 0)
 
     const order = new Order(
       orderId,
@@ -87,10 +133,11 @@ export class CrearPedido {
       dto.modalidad,
       'PENDIENTE',
       'PENDIENTE',
-      orderItems,
+      newItems,
       total,
       new Date(),
-      new Date()
+      new Date(),
+      dto.restaurantId
     )
 
     await this.orderRepository.save(order)
@@ -98,14 +145,14 @@ export class CrearPedido {
     // Notificación en Tiempo Real
     try {
       const io = getSocket()
-      io.emit('nuevo_pedido', {
+      io.to(`restaurant_${dto.restaurantId}`).emit('nuevo_pedido', {
         id: order.id,
         mesaId: order.mesaId,
         total: order.total,
-        items: orderItems.length
+        items: newItems.length
       })
     } catch (e) {
-      console.warn('Socket no inicializado, el pedido se guardó pero no se notificó en real-time')
+      console.warn('Socket no inicializado')
     }
 
     return order

@@ -8,7 +8,7 @@ import { sequelize } from '@/shared/infrastructure/database/sequelize.client'
 import '@/SequelizeModels'
 import { MenuRouter } from '@/menu/routes/routes'
 import { OrderRouter } from '@/orders/routes/routes'
-import AuthRouter from '@/auth/routes/routes'
+import { AuthRouter } from '@/auth/routes/routes'
 
 const app = express()
 const server = http.createServer(app)

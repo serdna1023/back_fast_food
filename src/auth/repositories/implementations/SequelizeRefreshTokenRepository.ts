@@ -1,11 +1,5 @@
-import { RefreshTokenModel } from '../../SequelizeModels'
-
-export interface IRefreshTokenRepository {
-  save(userId: string, token: string, expiresAt: Date): Promise<void>;
-  deleteByToken(token: string): Promise<void>;
-  deleteByUserId(userId: string): Promise<void>;
-  findByToken(token: string): Promise<any | null>;
-}
+import { RefreshTokenModel } from '../../../SequelizeModels'
+import { IRefreshTokenRepository } from '../interfaces/IRefreshTokenRepository'
 
 export class SequelizeRefreshTokenRepository implements IRefreshTokenRepository {
   async save(userId: string, token: string, expiresAt: Date): Promise<void> {

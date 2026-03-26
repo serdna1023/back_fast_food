@@ -3,6 +3,7 @@ import { CrearMenuDiario } from '@/menu/use-cases/menu-diario/CrearMenuDiario'
 import { ListarMenusDiarios } from '@/menu/use-cases/menu-diario/ListarMenusDiarios'
 import { ObtenerMenuDiarioHoy } from '@/menu/use-cases/menu-diario/ObtenerMenuDiarioHoy'
 import { CambiarDisponibilidadPlatoMenu } from '@/menu/use-cases/menu-diario/CambiarDisponibilidadPlatoMenu'
+import { CrearMenuDiarioDTO } from '../dtos/CrearMenuDiarioDTO'
 
 export class MenuDiarioController {
   constructor(
@@ -26,8 +27,9 @@ export class MenuDiarioController {
 
   crear = async (req: Request, res: Response) => {
     try {
-      const { precio, fecha, creadoPor, platos } = req.body
+      const { restaurantId, precio, fecha, creadoPor, platos } = req.body
       const menu = await this.crearMenuDiario.execute({
+        restaurantId,
         precio,
         fecha: fecha ? new Date(fecha) : undefined,
         creadoPor,

@@ -1,11 +1,15 @@
 import { DataTypes, Model } from 'sequelize'
 import { sequelize } from '@/shared/infrastructure/database/sequelize.client'
 
+export type MesaStatus = 'FREE' | 'WAITING' | 'OCCUPIED'
+
 export class MesaModel extends Model {
   public id!: string
   public restaurantId!: string
   public parentMesaId!: string | null
+  public status!: MesaStatus
   public isActive!: boolean
+  public currentOrderId!: string | null
 }
 
 MesaModel.init(
@@ -24,10 +28,20 @@ MesaModel.init(
       allowNull: true,
       field: 'parent_mesa_id',
     },
+    status: {
+      type: DataTypes.ENUM('FREE', 'WAITING', 'OCCUPIED'),
+      allowNull: false,
+      defaultValue: 'FREE',
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       field: 'is_active',
+    },
+    currentOrderId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'current_order_id',
     },
   },
   {

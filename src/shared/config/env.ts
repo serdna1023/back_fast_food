@@ -9,9 +9,8 @@ const envSchema = z.object({
   DB_PORT: z.string().default('5432'),
   DB_NAME: z.string(),
   DATABASE_URL: z.string().optional(),
-  CLERK_SECRET_KEY: z.string(),
-  CLERK_PUBLISHABLE_KEY: z.string(),
-  CLIENT_URL: z.string().default('http://localhost:3000'),
+  JWT_SECRET: z.string().default('super-secreto-temporal-en-desarrollo'),
+  CLIENT_URL: z.string().default('http://localhost:3000')
 })
 
 const parsed = envSchema.safeParse(process.env)

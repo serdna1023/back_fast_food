@@ -16,7 +16,8 @@ export class Order {
     public readonly items: OrderItem[] = [],
     public readonly total: number = 0,
     public readonly createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
+    public readonly restaurantId: string = ''
   ) {}
 
   /**

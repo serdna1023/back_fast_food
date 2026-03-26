@@ -77,4 +77,16 @@ export class SequelizeOrderRepository implements IOrderRepository {
   async updateStatus(id: string, estado: string): Promise<void> {
     await OrderModel.update({ estado }, { where: { id } })
   }
+
+  async updateItemStatus(itemId: string, nuevoEstado: string): Promise<{ orderId: string }> {
+    const item = await OrderItemModel.findByPk(itemId)
+    if (!item) throw new Error('Item del pedido no encontrado')
+    await OrderItemModel.update({ estado: nuevoEstado }, { where: { id: itemId } })
+    return { orderId: item.orderId }
+  }
+
+  async areAllItemsDelivered(orderId: string): Promise<boolean> {
+    const items = await OrderItemModel.findAll({ where: { orderId } })
+    return items.length > 0 && items.every(i => i.estado === 'ENTREGADO')
+  }
 }

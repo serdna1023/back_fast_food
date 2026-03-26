@@ -6,6 +6,8 @@ import { ListarPlatosPorCategoria } from '@/menu/use-cases/plato/ListarPlatosPor
 import { ActualizarPlato } from '@/menu/use-cases/plato/ActualizarPlato'
 import { EliminarPlato } from '@/menu/use-cases/plato/EliminarPlato'
 import { BuscarPlatosPorNombre } from '@/menu/use-cases/plato/BuscarPlatosPorNombre'
+import { CrearPlatoDTO } from '@/menu/dtos/CrearPlatoDTO'
+import { ActualizarPlatoDTO } from '@/menu/dtos/ActualizarPlatoDTO'
 
 /**
  * PlatoController maneja todas las solicitudes HTTP relacionadas con los Platos.
@@ -27,7 +29,7 @@ export class PlatoController {
    */
   crearPlato = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { categoryId, name, description, tipo, price, imageUrl, available } = req.body
+      const { restaurantId, categoryId, name, description, tipo, price, imageUrl, available } = req.body
 
       // Validación básica
       if (!categoryId || !name || !tipo) {
@@ -36,6 +38,7 @@ export class PlatoController {
       }
 
       const plato = await this.crearPlatoUseCase.execute({
+        restaurantId,
         categoryId,
         name,
         description,
@@ -107,10 +110,11 @@ export class PlatoController {
   actualizarPlato = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params as { id: string }
-      const { categoryId, name, description, tipo, price, imageUrl, available } = req.body
+      const { restaurantId, categoryId, name, description, tipo, price, imageUrl, available } = req.body
 
       const platoActualizado = await this.actualizarPlatoUseCase.execute({
         id,
+        restaurantId,
         categoryId,
         name,
         description,

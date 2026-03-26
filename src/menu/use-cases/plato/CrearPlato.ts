@@ -1,17 +1,8 @@
 import { Plato } from '@/menu/entities/Plato'
 import { IPlatoRepository } from '@/menu/repositories/interfaces/IPlatoRepository'
 import { ICategoryRepository } from '@/menu/repositories/interfaces/ICategoryRepository'
-import { v4 as uuidv4 } from 'uuid'
-
-export interface CrearPlatoDTO {
-  categoryId: string
-  name: string
-  description?: string | null
-  tipo: 'CARTA' | 'MENU'
-  price?: number | null
-  imageUrl?: string | null
-  available?: boolean
-}
+import { v4 as uuidv4 } from 'uuid';
+import { CrearPlatoDTO } from '../../dtos/CrearPlatoDTO';
 
 export class CrearPlato {
   constructor(

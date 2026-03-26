@@ -1,24 +1,9 @@
-import { IUserRepository } from '../repositories/IUserRepository';
+import { IUserRepository } from '../repositories/interfaces/IUserRepository';
 import { IPasswordHasher } from '../security/IPasswordHasher';
 import { ITokenService } from '../security/ITokenService';
-import { IRefreshTokenRepository } from '../repositories/RefreshTokenRepository';
+import { IRefreshTokenRepository } from '../repositories/interfaces/IRefreshTokenRepository';
 import { User } from '../entities/User';
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  user: {
-    id: string;
-    username: string;
-    email: string;
-    restaurantId: string;
-    roles: string[];
-  };
-  token: string;
-}
+import { LoginRequest, LoginResponse } from '../dtos/LoginDTO';
 
 export class Login {
   constructor(
@@ -53,7 +38,8 @@ export class Login {
       {
         sub: user.id,
         restaurantId: user.restaurantId,
-        roles: user.roles
+        roles: user.roles,
+        permissions: user.permissions
       },
       '8h' // Expira en 8 horas
     );
@@ -64,14 +50,15 @@ export class Login {
     await this.refreshTokenRepository.save(user.id, token, expiresAt);
 
     return {
+      token,
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
         restaurantId: user.restaurantId,
-        roles: user.roles
-      },
-      token
+        roles: user.roles,
+        permissions: user.permissions
+      }
     };
   }
 }

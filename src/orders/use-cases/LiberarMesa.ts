@@ -1,14 +1,13 @@
-import { MesaModel } from '@/SequelizeModels'
+import { IMesaRepository } from '../repositories/interfaces/IMesaRepository'
 
 export class LiberarMesa {
-  async execute(mesaId: string): Promise<void> {
-    const mesa = await MesaModel.findByPk(mesaId)
-    if (!mesa) throw new Error('La mesa no existe')
+  constructor(private readonly mesaRepository: IMesaRepository) {}
 
-    // Quitar la redirección
-    await MesaModel.update(
-      { parentMesaId: null },
-      { where: { id: mesaId } }
-    )
+  async execute(mesaId: string, restaurantId: string): Promise<void> {
+    const mesa = await this.mesaRepository.findById(mesaId, restaurantId)
+    if (!mesa) throw new Error(`La mesa ${mesaId} no existe`)
+
+    mesa.separar()
+    await this.mesaRepository.save(mesa)
   }
 }
