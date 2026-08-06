@@ -10,15 +10,15 @@ export class ActualizarCategoria {
    * @param newName - El nuevo nombre
    * @returns La categoría actualizada
    */
-  async execute(id: string, newName: string): Promise<Category> {
+  async execute(id: string, restaurantId: string, newName: string): Promise<Category> {
     // 1. Verificamos que la categoría exista
-    const category = await this.categoryRepository.findById(id)
+    const category = await this.categoryRepository.findById(id, restaurantId)
     if (!category) {
       throw new Error('Categoría no encontrada')
     }
 
-    // 2. Validamos que el nuevo nombre no esté siendo usado por otra categoría distinto
-    const existingName = await this.categoryRepository.findByName(newName)
+    // 2. Validamos que el nuevo nombre no esté siendo usado por otra categoría distinto dentro del mismo restaurante
+    const existingName = await this.categoryRepository.findByName(newName, restaurantId)
     if (existingName && existingName.id !== id) {
       throw new Error('El nombre de la categoría ya está en uso')
     }

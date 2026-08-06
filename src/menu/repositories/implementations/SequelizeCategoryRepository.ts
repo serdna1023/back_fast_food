@@ -14,8 +14,8 @@ export class SequelizeCategoryRepository implements ICategoryRepository {
    * @param id - Identificador de la categoría.
    * @returns Entidad Category si la encuentra, o null en caso contrario.
    */
-  async findById(id: string): Promise<Category | null> {
-    const model = await CategoryModel.findByPk(id)
+  async findById(id: string, restaurantId: string): Promise<Category | null> {
+    const model = await CategoryModel.findOne({ where: { id, restaurantId } })
     if (!model) return null
     return CategoryMapper.toDomain(model)
   }
@@ -24,8 +24,8 @@ export class SequelizeCategoryRepository implements ICategoryRepository {
    * Obtiene todas las categorías de la base de datos.
    * @returns Un arreglo de entidades Category.
    */
-  async findAll(): Promise<Category[]> {
-    const models = await CategoryModel.findAll()
+  async findAll(restaurantId: string): Promise<Category[]> {
+    const models = await CategoryModel.findAll({ where: { restaurantId } })
     return models.map((m) => CategoryMapper.toDomain(m))
   }
 
@@ -33,8 +33,8 @@ export class SequelizeCategoryRepository implements ICategoryRepository {
    * Busca una categoría verificando el nombre exacto. Útil para validaciones.
    * @param name - Nombre a buscar.
    */
-  async findByName(name: string): Promise<Category | null> {
-    const model = await CategoryModel.findOne({ where: { name } })
+  async findByName(name: string, restaurantId: string): Promise<Category | null> {
+    const model = await CategoryModel.findOne({ where: { name, restaurantId } })
     if (!model) return null
     return CategoryMapper.toDomain(model)
   }
@@ -47,7 +47,7 @@ export class SequelizeCategoryRepository implements ICategoryRepository {
     const rawData = CategoryMapper.toPersistence(category)
     
     // Verificamos si ya existe para decidir si hacemos Update o Create
-    const existing = await CategoryModel.findByPk(category.id)
+    const existing = await CategoryModel.findOne({ where: { id: category.id, restaurantId: category.restaurantId } })
     
     if (existing) {
       // Actualiza si existe
@@ -62,7 +62,7 @@ export class SequelizeCategoryRepository implements ICategoryRepository {
    * Elimina un registro de categoría de la BD.
    * @param id - Identificador de la categoría
    */
-  async delete(id: string): Promise<void> {
-    await CategoryModel.destroy({ where: { id } })
+  async delete(id: string, restaurantId: string): Promise<void> {
+    await CategoryModel.destroy({ where: { id, restaurantId } })
   }
 }

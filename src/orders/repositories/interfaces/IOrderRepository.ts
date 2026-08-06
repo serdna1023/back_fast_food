@@ -2,10 +2,10 @@ import { Order } from '../../entities/Order'
 
 export interface IOrderRepository {
   save(order: Order): Promise<void>
-  findById(id: string): Promise<Order | null>
-  findByMesa(mesaId: string, soloPendientesPago?: boolean): Promise<Order[]>
-  listActivos(): Promise<Order[]>
-  updateStatus(id: string, estado: string): Promise<void>
-  updateItemStatus(itemId: string, nuevoEstado: string): Promise<{ orderId: string }>
+  findById(id: string, restaurantId: string): Promise<Order | null>
+  findByMesa(mesaId: string, restaurantId: string, soloPendientesPago?: boolean): Promise<Order[]>
+  listActivos(restaurantId: string): Promise<Order[]>
+  updateStatus(id: string, restaurantId: string, estado: string): Promise<void>
+  updateItemStatus(itemId: string, restaurantId: string, nuevoEstado: string): Promise<{ orderId: string }>
   areAllItemsDelivered(orderId: string): Promise<boolean>
 }

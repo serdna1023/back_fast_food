@@ -9,11 +9,11 @@ export class ObtenerPlatoPorId {
    * @param id - Identificador único del plato
    * @returns El plato encontrado
    */
-  async execute(id: string): Promise<Plato> {
-    const plato = await this.platoRepository.findById(id)
+  async execute(id: string, restaurantId: string): Promise<Plato> {
+    const plato = await this.platoRepository.findById(id, restaurantId)
     
     if (!plato) {
-      throw new Error('Plato no encontrado')
+      throw new Error('Plato no encontrado o acceso denegado')
     }
 
     return plato

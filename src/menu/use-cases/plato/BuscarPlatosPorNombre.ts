@@ -12,11 +12,11 @@ export class BuscarPlatosPorNombre {
    * @param query - Texto parcial a buscar
    * @returns Arreglo de platos que coinciden con la búsqueda
    */
-  async execute(query: string): Promise<Plato[]> {
+  async execute(query: string, restaurantId: string): Promise<Plato[]> {
     if (!query || query.trim().length === 0) {
       return []
     }
 
-    return this.platoRepository.searchByName(query.trim())
+    return this.platoRepository.searchByName(query.trim(), restaurantId)
   }
 }

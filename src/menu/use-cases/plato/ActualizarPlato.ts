@@ -16,9 +16,9 @@ export class ActualizarPlato {
    * @returns El plato actualizado
    */
   async execute(dto: ActualizarPlatoDTO): Promise<Plato> {
-    const plato = await this.platoRepository.findById(dto.id)
+    const plato = await this.platoRepository.findById(dto.id, dto.restaurantId)
     if (!plato) {
-      throw new Error('Plato no encontrado')
+      throw new Error('Plato no encontrado o acceso denegado')
     }
 
     // Actualizamos el tipo si se manda
@@ -26,11 +26,11 @@ export class ActualizarPlato {
        plato.tipo = dto.tipo
     }
 
-    // Si se envía una categoryId nueva, validamos que la categoría de destino exista.
+    // Si se envía una categoryId nueva, validamos que la categoría de destino exista en el mismo restaurante.
     if (dto.categoryId && dto.categoryId !== plato.categoryId) {
-      const category = await this.categoryRepository.findById(dto.categoryId)
+      const category = await this.categoryRepository.findById(dto.categoryId, dto.restaurantId)
       if (!category) {
-        throw new Error('La nueva categoría especificada no existe')
+        throw new Error('La nueva categoría especificada no existe o no pertenece al mismo restaurante')
       }
       plato.categoryId = dto.categoryId
     }

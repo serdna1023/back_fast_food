@@ -9,20 +9,20 @@ export interface IMenuDiarioRepository {
   /**
    * Busca un menú por ID, recuperando también sus platos.
    */
-  findById(id: string): Promise<MenuDiario | null>
+  findById(id: string, restaurantId: string): Promise<MenuDiario | null>
   
   /**
    * Busca el menú de una fecha específica.
    */
-  findByDate(date: Date): Promise<MenuDiario | null>
+  findByDate(date: Date, restaurantId: string): Promise<MenuDiario | null>
   
   /**
    * Lista los menús recientes.
    */
-  findAll(): Promise<MenuDiario[]>
+  findAll(restaurantId: string): Promise<MenuDiario[]>
 
   /**
    * Elimina un menú y sus detalles.
    */
-  delete(id: string): Promise<void>
+  delete(id: string, restaurantId: string): Promise<void>
 }

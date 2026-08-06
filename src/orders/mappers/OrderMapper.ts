@@ -11,10 +11,14 @@ export class OrderMapper {
       item.diarioId,
       item.cantidad,
       parseFloat(item.precioUnitario.toString()),
-      item.notes,
+      item.notas, // Corregido de item.notes a item.notas
       item.plato?.name || (item.diarioId ? 'Menú del Día' : 'Producto'),
       item.plato?.imageUrl,
-      item.estado as OrderStatus
+      item.estado as OrderStatus,
+      item.entradaId,
+      item.segundoId,
+      item.entrada?.name, // Asumiendo que se incluyen en el include
+      item.segundo?.name
     )) || []
 
     return new Order(
@@ -28,13 +32,15 @@ export class OrderMapper {
       items,
       parseFloat(model.total.toString()),
       model.createdAt,
-      model.updatedAt
+      model.updatedAt,
+      model.restaurantId
     )
   }
 
   static toPersistence(entity: Order): any {
     return {
       id: entity.id,
+      restaurant_id: entity.restaurantId,
       user_id: entity.userId,
       customer_name: entity.customerName,
       mesa_id: entity.mesaId,
@@ -53,6 +59,8 @@ export class OrderMapper {
       order_id: item.orderId,
       plato_id: item.platoId,
       diario_id: item.diarioId,
+      entrada_id: item.entradaId,
+      segundo_id: item.segundoId,
       cantidad: item.cantidad,
       precio_unitario: item.precioUnitario,
       notas: item.notas,

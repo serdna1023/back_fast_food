@@ -23,7 +23,6 @@ CategoryModel.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
     createdAt: {
       type: DataTypes.DATE,

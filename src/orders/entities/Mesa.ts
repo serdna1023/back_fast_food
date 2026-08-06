@@ -7,7 +7,8 @@ export class Mesa {
     public status: MesaStatus,
     public currentOrderId: string | null = null,
     public parentMesaId: string | null = null,
-    public readonly isActive: boolean = true
+    public readonly isActive: boolean = true,
+    public capacidad: number = 0
   ) {}
 
   // ─── Métodos de dominio ────────────────────────────────────────

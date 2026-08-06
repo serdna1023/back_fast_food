@@ -5,6 +5,7 @@ export class CategoryMapper {
   static toDomain(model: CategoryModel): Category {
     return new Category(
       model.id,
+      model.restaurantId,
       model.name,
       model.createdAt
     )
@@ -13,6 +14,7 @@ export class CategoryMapper {
   static toPersistence(entity: Category): any {
     return {
       id: entity.id,
+      restaurant_id: entity.restaurantId,
       name: entity.name,
       // Date is managed by DB mostly, but we can pass it
       created_at: entity.createdAt

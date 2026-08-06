@@ -5,11 +5,12 @@ export class PlatoMapper {
   static toDomain(model: PlatoModel): Plato {
     return new Plato(
       model.id,
+      model.restaurantId,
       model.categoryId,
       model.name,
       model.description,
-      model.tipo,
-      model.price,
+      model.tipo as 'CARTA' | 'MENU',
+      model.price ? parseFloat(model.price.toString()) : null,
       model.imageUrl,
       model.available,
       model.createdAt,
@@ -20,6 +21,7 @@ export class PlatoMapper {
   static toPersistence(entity: Plato): any {
     return {
       id: entity.id,
+      restaurant_id: entity.restaurantId,
       category_id: entity.categoryId,
       name: entity.name,
       description: entity.description,

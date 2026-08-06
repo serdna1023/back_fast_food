@@ -15,10 +15,11 @@ export class MenuDiarioController {
 
   cambiarDisponibilidad = async (req: Request, res: Response) => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const menuId = req.params.menuId as string
       const detalleId = req.params.detalleId as string
       const { disponible } = req.body
-      await this.cambiarDisponibilidadPlatoMenu.execute(menuId, detalleId, disponible)
+      await this.cambiarDisponibilidadPlatoMenu.execute(menuId, restaurantId, detalleId, disponible)
       res.status(200).json({ message: 'Estado del plato actualizado correctamente' })
     } catch (error: any) {
       res.status(400).json({ error: error.message })
@@ -27,7 +28,8 @@ export class MenuDiarioController {
 
   crear = async (req: Request, res: Response) => {
     try {
-      const { restaurantId, precio, fecha, creadoPor, platos } = req.body
+      const restaurantId = (req.user as any).restaurantId
+      const { precio, fecha, creadoPor, platos } = req.body
       const menu = await this.crearMenuDiario.execute({
         restaurantId,
         precio,
@@ -41,18 +43,20 @@ export class MenuDiarioController {
     }
   }
 
-  listar = async (_req: Request, res: Response) => {
+  listar = async (req: Request, res: Response) => {
     try {
-      const menus = await this.listarMenusDiarios.execute()
+      const restaurantId = (req.user as any).restaurantId
+      const menus = await this.listarMenusDiarios.execute(restaurantId)
       res.status(200).json(menus)
     } catch (error: any) {
       res.status(500).json({ error: error.message })
     }
   }
 
-  obtenerHoy = async (_req: Request, res: Response) => {
+  obtenerHoy = async (req: Request, res: Response) => {
     try {
-      const menu = await this.obtenerMenuDiarioHoy.execute()
+      const restaurantId = (req.user as any).restaurantId
+      const menu = await this.obtenerMenuDiarioHoy.execute(restaurantId)
       if (!menu) return res.status(404).json({ message: 'No hay menú programado para hoy' })
       res.status(200).json(menu)
     } catch (error: any) {

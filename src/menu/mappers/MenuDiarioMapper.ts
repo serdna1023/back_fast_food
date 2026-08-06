@@ -15,6 +15,7 @@ export class MenuDiarioMapper {
 
     return new MenuDiario(
       model.id,
+      model.restaurantId,
       parseFloat(model.precio.toString()),
       model.fecha,
       model.creadoPor,
@@ -27,6 +28,7 @@ export class MenuDiarioMapper {
   static toPersistence(entity: MenuDiario): any {
     return {
       id: entity.id,
+      restaurant_id: entity.restaurantId,
       precio: entity.precio,
       fecha: entity.fecha,
       creado_por: entity.creadoPor,

@@ -15,11 +15,11 @@ export class CrearMenuDiario {
       throw new Error('El menú diario debe tener al menos un plato')
     }
 
-    // 1. Validar que todos los platos existan y sean de tipo 'MENU'
+    // 1. Validar que todos los platos existan, sean de tipo 'MENU' y pertenezcan al mismo restaurante
     for (const item of dto.platos) {
-      const plato = await this.platoRepository.findById(item.platoId)
+      const plato = await this.platoRepository.findById(item.platoId, dto.restaurantId)
       if (!plato) {
-        throw new Error(`El plato con ID ${item.platoId} no existe`)
+        throw new Error(`El plato con ID ${item.platoId} no existe o no pertenece a este restaurante`)
       }
       if (plato.tipo !== 'MENU') {
         throw new Error(`El plato "${plato.name}" no es de tipo MENU y no puede estar en la oferta diaria`)
@@ -29,6 +29,7 @@ export class CrearMenuDiario {
     // 2. Crear la entidad principal
     const menu = new MenuDiario(
       uuidv4(),
+      dto.restaurantId,
       dto.precio,
       dto.fecha || new Date(),
       dto.creadoPor

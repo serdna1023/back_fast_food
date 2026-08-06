@@ -10,11 +10,11 @@ export class ObtenerCategoriaPorId {
    * @returns La categoría si existe, o null.
    * @throws Error si no se encuentra (dependiendo del diseño, acá elegimos arrojar error para casos de uso estrictos)
    */
-  async execute(id: string): Promise<Category> {
-    const category = await this.categoryRepository.findById(id)
+  async execute(id: string, restaurantId: string): Promise<Category> {
+    const category = await this.categoryRepository.findById(id, restaurantId)
     
     if (!category) {
-      throw new Error('Categoría no encontrada')
+      throw new Error('Categoría no encontrada o acceso denegado')
     }
 
     return category

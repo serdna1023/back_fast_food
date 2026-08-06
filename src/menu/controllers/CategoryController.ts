@@ -25,13 +25,14 @@ export class CategoryController {
    */
   createCategory = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { name } = req.body
       if (!name) {
         res.status(400).json({ error: 'El nombre es obligatorio' })
         return
       }
 
-      const category = await this.crearCategoria.execute(name)
+      const category = await this.crearCategoria.execute(name, restaurantId)
       res.status(201).json(category)
     } catch (error: any) {
       if (error.message.includes('ya existe') || error.message.includes('caracteres')) {
@@ -48,7 +49,8 @@ export class CategoryController {
    */
   getCategories = async (req: Request, res: Response): Promise<void> => {
     try {
-      const categories = await this.listarCategorias.execute()
+      const restaurantId = (req.user as any).restaurantId
+      const categories = await this.listarCategorias.execute(restaurantId)
       res.status(200).json(categories)
     } catch (error: any) {
       res.status(500).json({ error: 'Error al obtener las categorías' })
@@ -61,8 +63,9 @@ export class CategoryController {
    */
   getCategoryById = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { id } = req.params as { id: string }
-      const category = await this.obtenerCategoriaPorId.execute(id)
+      const category = await this.obtenerCategoriaPorId.execute(id, restaurantId)
       res.status(200).json(category)
     } catch (error: any) {
       if (error.message.includes('no encontrada')) {
@@ -79,6 +82,7 @@ export class CategoryController {
    */
   updateCategory = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { id } = req.params as { id: string }
       const { name } = req.body
 
@@ -87,7 +91,7 @@ export class CategoryController {
          return
       }
 
-      const updatedCategory = await this.actualizarCategoria.execute(id, name)
+      const updatedCategory = await this.actualizarCategoria.execute(id, restaurantId, name)
       res.status(200).json(updatedCategory)
     } catch (error: any) {
       if (error.message.includes('no encontrada')) {
@@ -106,8 +110,9 @@ export class CategoryController {
    */
   deleteCategory = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { id } = req.params as { id: string }
-      await this.eliminarCategoria.execute(id)
+      await this.eliminarCategoria.execute(id, restaurantId)
       res.status(204).send() // Not Content (Exitoso)
     } catch (error: any) {
       if (error.message.includes('no encontrada')) {

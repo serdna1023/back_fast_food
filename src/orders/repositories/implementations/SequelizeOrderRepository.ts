@@ -33,12 +33,15 @@ export class SequelizeOrderRepository implements IOrderRepository {
     }
   }
 
-  async findById(id: string): Promise<Order | null> {
-    const model = await OrderModel.findByPk(id, {
+  async findById(id: string, restaurantId: string): Promise<Order | null> {
+    const model = await OrderModel.findOne({
+      where: { id, restaurantId },
       include: [
         { model: OrderItemModel, as: 'items', include: [
             { model: PlatoModel, as: 'plato' },
-            { model: MenuDiarioModel, as: 'menuDiario' }
+            { model: MenuDiarioModel, as: 'menuDiario' },
+            { model: PlatoModel, as: 'entrada' },
+            { model: PlatoModel, as: 'segundo' }
         ]}
       ]
     })
@@ -47,8 +50,8 @@ export class SequelizeOrderRepository implements IOrderRepository {
     return OrderMapper.toDomain(model)
   }
 
-  async findByMesa(mesaId: string, soloPendientesPago: boolean = true): Promise<Order[]> {
-    const where: any = { mesaId }
+  async findByMesa(mesaId: string, restaurantId: string, soloPendientesPago: boolean = true): Promise<Order[]> {
+    const where: any = { mesaId, restaurantId }
     if (soloPendientesPago) {
       where.pagoEstado = 'PENDIENTE'
     }
@@ -62,9 +65,10 @@ export class SequelizeOrderRepository implements IOrderRepository {
     return models.map(m => OrderMapper.toDomain(m))
   }
 
-  async listActivos(): Promise<Order[]> {
+  async listActivos(restaurantId: string): Promise<Order[]> {
     const models = await OrderModel.findAll({
       where: {
+        restaurantId,
         estado: { [Op.in]: ['PENDIENTE', 'PREPARANDO', 'LISTO'] }
       },
       include: [{ model: OrderItemModel, as: 'items' }],
@@ -74,13 +78,20 @@ export class SequelizeOrderRepository implements IOrderRepository {
     return models.map(m => OrderMapper.toDomain(m))
   }
 
-  async updateStatus(id: string, estado: string): Promise<void> {
-    await OrderModel.update({ estado }, { where: { id } })
+  async updateStatus(id: string, restaurantId: string, estado: string): Promise<void> {
+    const result = await OrderModel.update({ estado }, { where: { id, restaurantId } })
+    if (result[0] === 0) throw new Error('Pedido no encontrado o no pertenece al restaurante')
   }
 
-  async updateItemStatus(itemId: string, nuevoEstado: string): Promise<{ orderId: string }> {
-    const item = await OrderItemModel.findByPk(itemId)
-    if (!item) throw new Error('Item del pedido no encontrado')
+  async updateItemStatus(itemId: string, restaurantId: string, nuevoEstado: string): Promise<{ orderId: string }> {
+    const item = await OrderItemModel.findByPk(itemId, {
+      include: [{ model: OrderModel, as: 'order' }]
+    })
+    
+    if (!item || (item as any).order.restaurantId !== restaurantId) {
+      throw new Error('Item del pedido no encontrado o acceso denegated')
+    }
+
     await OrderItemModel.update({ estado: nuevoEstado }, { where: { id: itemId } })
     return { orderId: item.orderId }
   }

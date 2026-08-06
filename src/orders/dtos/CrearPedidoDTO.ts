@@ -3,6 +3,8 @@ import { OrderModalidad } from '../entities/Order'
 export interface ItemPedidoInput {
   platoId?: string;
   diarioId?: string;
+  entradaId?: string;
+  segundoId?: string;
   cantidad: number;
   notas?: string;
 }

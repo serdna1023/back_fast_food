@@ -3,8 +3,8 @@ import { IOrderRepository } from '../repositories/interfaces/IOrderRepository'
 export class ObtenerCuentaMesa {
   constructor(private readonly orderRepository: IOrderRepository) {}
 
-  async execute(mesaId: string) {
-    const orders = await this.orderRepository.findByMesa(mesaId, true) // Solo pendientes de pago
+  async execute(mesaId: string, restaurantId: string) {
+    const orders = await this.orderRepository.findByMesa(mesaId, restaurantId, true) // Solo pendientes de pago
     
     if (orders.length === 0) {
       return { mesaId, totalGeneral: 0, pedidos: [] }

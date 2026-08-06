@@ -10,6 +10,7 @@ export class MesaModel extends Model {
   public status!: MesaStatus
   public isActive!: boolean
   public currentOrderId!: string | null
+  public capacidad!: number
 }
 
 MesaModel.init(
@@ -42,6 +43,11 @@ MesaModel.init(
       type: DataTypes.UUID,
       allowNull: true,
       field: 'current_order_id',
+    },
+    capacidad: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
     },
   },
   {

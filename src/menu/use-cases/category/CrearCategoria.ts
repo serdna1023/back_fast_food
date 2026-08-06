@@ -13,17 +13,17 @@ export class CrearCategoria {
    * @param name - Nombre de la nueva categoría
    * @returns La categoría creada
    */
-  async execute(name: string): Promise<Category> {
-    // 1. Verificamos si ya existe una categoría con ese nombre
-    const existingCategory = await this.categoryRepository.findByName(name)
+  async execute(name: string, restaurantId: string): Promise<Category> {
+    // 1. Verificamos si ya existe una categoría con ese nombre en este restaurante
+    const existingCategory = await this.categoryRepository.findByName(name, restaurantId)
     if (existingCategory) {
-      throw new Error('Ya existe una categoría con ese nombre')
+      throw new Error('Ya existe una categoría con ese nombre en este restaurante')
     }
 
     // 2. Creamos la entidad
-    // (Asumimos que el ID se genera acá para tenerlo disponible inmediatamente)
     const newCategory = new Category(
       uuidv4(),
+      restaurantId,
       name,
       new Date()
     )

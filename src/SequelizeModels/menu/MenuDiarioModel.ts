@@ -4,6 +4,7 @@ import { MenuPlatoModel } from './MenuPlatoModel'
 
 export class MenuDiarioModel extends Model {
   public id!: string
+  public restaurantId!: string
   public precio!: number
   public fecha!: Date
   public creadoPor!: string
@@ -20,6 +21,11 @@ MenuDiarioModel.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+    },
+    restaurantId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'restaurant_id',
     },
     precio: {
       type: DataTypes.DECIMAL(10, 2),

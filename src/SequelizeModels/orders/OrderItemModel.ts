@@ -9,12 +9,23 @@ export class OrderItemModel extends Model {
   public orderId!: string
   public platoId!: string | null
   public diarioId!: string | null
+  public entradaId!: string | null
+  public segundoId!: string | null
   public cantidad!: number
   public precioUnitario!: number
   public notas!: string | null
   public estado!: 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'ENTREGADO' | 'CANCELADO'
   public createdAt!: Date
   public updatedAt!: Date
+
+  // Asociaciones
+  public static associate() {
+    OrderItemModel.belongsTo(OrderModel, { foreignKey: 'orderId', as: 'order' })
+    OrderItemModel.belongsTo(PlatoModel, { foreignKey: 'platoId', as: 'plato' })
+    OrderItemModel.belongsTo(MenuDiarioModel, { foreignKey: 'diarioId', as: 'menuDiario' })
+    OrderItemModel.belongsTo(PlatoModel, { foreignKey: 'entradaId', as: 'entrada' })
+    OrderItemModel.belongsTo(PlatoModel, { foreignKey: 'segundoId', as: 'segundo' })
+  }
 }
 
 OrderItemModel.init(
@@ -29,7 +40,7 @@ OrderItemModel.init(
       allowNull: false,
       field: 'order_id',
       references: {
-        model: OrderModel,
+        model: 'orders',
         key: 'id',
       },
     },
@@ -38,7 +49,7 @@ OrderItemModel.init(
       allowNull: true,
       field: 'plato_id',
       references: {
-        model: PlatoModel,
+        model: 'platos',
         key: 'id',
       },
     },
@@ -47,7 +58,25 @@ OrderItemModel.init(
       allowNull: true,
       field: 'diario_id',
       references: {
-        model: MenuDiarioModel,
+        model: 'diarios',
+        key: 'id',
+      },
+    },
+    entradaId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'entrada_id',
+      references: {
+        model: 'platos',
+        key: 'id',
+      },
+    },
+    segundoId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'segundo_id',
+      references: {
+        model: 'platos',
         key: 'id',
       },
     },

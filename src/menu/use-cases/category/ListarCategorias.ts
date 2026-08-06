@@ -8,7 +8,7 @@ export class ListarCategorias {
    * Obtiene la lista completa de todas las categorías.
    * @returns Un arreglo con todas las categorías en el sistema.
    */
-  async execute(): Promise<Category[]> {
-    return this.categoryRepository.findAll()
+  async execute(restaurantId: string): Promise<Category[]> {
+    return this.categoryRepository.findAll(restaurantId)
   }
 }

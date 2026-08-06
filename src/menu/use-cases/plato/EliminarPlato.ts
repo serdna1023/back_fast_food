@@ -7,12 +7,12 @@ export class EliminarPlato {
    * Elimina un plato específico asegurándose de que antes existía.
    * @param id - ID del plato a eliminar
    */
-  async execute(id: string): Promise<void> {
-    const plato = await this.platoRepository.findById(id)
+  async execute(id: string, restaurantId: string): Promise<void> {
+    const plato = await this.platoRepository.findById(id, restaurantId)
     if (!plato) {
-      throw new Error('Plato no encontrado')
+      throw new Error('Plato no encontrado o acceso denegado')
     }
 
-    await this.platoRepository.delete(id)
+    await this.platoRepository.delete(id, restaurantId)
   }
 }

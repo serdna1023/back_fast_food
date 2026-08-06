@@ -16,15 +16,16 @@ export class CrearPlato {
    * @returns El plato creado
    */
   async execute(dto: CrearPlatoDTO): Promise<Plato> {
-    // 1. Verificamos que la categoría asociada exista
-    const category = await this.categoryRepository.findById(dto.categoryId)
+    // 1. Verificamos que la categoría asociada exista en el mismo restaurante
+    const category = await this.categoryRepository.findById(dto.categoryId, dto.restaurantId)
     if (!category) {
-      throw new Error('La categoría especificada no existe')
+      throw new Error('La categoría especificada no existe o no pertenece al restaurante')
     }
 
     // 2. Creamos la entidad Plato
     const nuevoPlato = new Plato(
       uuidv4(),
+      dto.restaurantId,
       dto.categoryId,
       dto.name,
       dto.description ?? null,

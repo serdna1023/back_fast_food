@@ -24,11 +24,13 @@ import { CrearMenuDiario } from '../use-cases/menu-diario/CrearMenuDiario'
 import { ListarMenusDiarios } from '../use-cases/menu-diario/ListarMenusDiarios'
 import { ObtenerMenuDiarioHoy } from '../use-cases/menu-diario/ObtenerMenuDiarioHoy'
 import { CambiarDisponibilidadPlatoMenu } from '../use-cases/menu-diario/CambiarDisponibilidadPlatoMenu'
+import { ObtenerMenuPublico } from '../use-cases/ObtenerMenuPublico'
 
 // Repositorios
 import { SequelizeCategoryRepository } from '../repositories/implementations/SequelizeCategoryRepository'
 import { SequelizePlatoRepository } from '../repositories/implementations/SequelizePlatoRepository'
 import { SequelizeMenuDiarioRepository } from '../repositories/implementations/SequelizeMenuDiarioRepository'
+import { SequelizeRestauranteRepository } from '../repositories/implementations/SequelizeRestauranteRepository'
 
 const router = Router()
 
@@ -40,6 +42,7 @@ const router = Router()
 const categoryRepository = new SequelizeCategoryRepository()
 const platoRepository = new SequelizePlatoRepository()
 const menuDiarioRepository = new SequelizeMenuDiarioRepository()
+const restauranteRepository = new SequelizeRestauranteRepository()
 
 /**
  * ==========================================
@@ -68,6 +71,14 @@ const listarMenusDiarios = new ListarMenusDiarios(menuDiarioRepository)
 const obtenerMenuDiarioHoy = new ObtenerMenuDiarioHoy(menuDiarioRepository)
 const cambiarDisponibilidadPlatoMenu = new CambiarDisponibilidadPlatoMenu(menuDiarioRepository)
 
+// --- Public Use Case
+const obtenerMenuPublico = new ObtenerMenuPublico(
+  restauranteRepository,
+  categoryRepository,
+  platoRepository,
+  menuDiarioRepository
+)
+
 /**
  * ==========================================
  * 3. INSTANCIAR CONTROLADORES
@@ -88,7 +99,8 @@ const platoController = new PlatoController(
   listarPlatosPorCategoria,
   actualizarPlato,
   eliminarPlato,
-  buscarPlatosPorNombre
+  buscarPlatosPorNombre,
+  obtenerMenuPublico
 )
 
 const menuDiarioController = new MenuDiarioController(
@@ -112,6 +124,7 @@ router.patch('/categories/:id', categoryController.updateCategory)
 router.delete('/categories/:id', categoryController.deleteCategory)
 
 // RUTAS: Platos
+router.get('/public/:slug', platoController.obtenerMenuPublico)
 router.get('/platos/search', platoController.buscarPlatos)
 router.get('/platos', platoController.listarPlatos)
 router.get('/platos/:id', platoController.obtenerPlatoPorId)

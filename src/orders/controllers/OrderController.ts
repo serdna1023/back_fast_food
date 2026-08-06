@@ -6,6 +6,7 @@ import { ObtenerCuentaMesa } from '../use-cases/ObtenerCuentaMesa'
 import { ObtenerDetallePedido } from '../use-cases/ObtenerDetallePedido'
 import { UnirMesas } from '../use-cases/UnirMesas'
 import { LiberarMesa } from '../use-cases/LiberarMesa'
+import { CrearMesa } from '../use-cases/CrearMesa'
 import { CambiarEstadoItem } from '../use-cases/CambiarEstadoItem'
 import { IOrderRepository } from '../repositories/interfaces/IOrderRepository'
 import { IMesaRepository } from '../repositories/interfaces/IMesaRepository'
@@ -21,7 +22,8 @@ export class OrderController {
     private readonly cambiarEstadoItemUC: CambiarEstadoItem,
     private readonly obtenerDetallePedido: ObtenerDetallePedido,
     private readonly unirMesasUC: UnirMesas,
-    private readonly liberarMesaUC: LiberarMesa
+    private readonly liberarMesaUC: LiberarMesa,
+    private readonly crearMesaUC: CrearMesa
   ) {}
 
   crear = async (req: Request, res: Response) => {
@@ -46,7 +48,8 @@ export class OrderController {
     try {
       const id = req.params.id as string
       const { estado } = req.body
-      await this.cambiarEstadoPedido.execute(id, estado as OrderStatus)
+      const restaurantId = (req as any).user.restaurantId
+      await this.cambiarEstadoPedido.execute(id, restaurantId, estado as OrderStatus)
       res.status(200).json({ message: 'Estado del pedido actualizado' })
     } catch (error: any) {
       res.status(400).json({ error: error.message })
@@ -56,16 +59,18 @@ export class OrderController {
   verCuentaMesa = async (req: Request, res: Response) => {
     try {
       const mesaId = req.params.mesaId as string
-      const cuenta = await this.obtenerCuentaMesa.execute(mesaId)
+      const restaurantId = (req as any).user.restaurantId
+      const cuenta = await this.obtenerCuentaMesa.execute(mesaId, restaurantId)
       res.status(200).json(cuenta)
     } catch (error: any) {
       res.status(400).json({ error: error.message })
     }
   }
 
-  listarActivos = async (_req: Request, res: Response) => {
+  listarActivos = async (req: Request, res: Response) => {
     try {
-      const pedidos = await this.orderRepository.listActivos()
+      const restaurantId = (req as any).user?.restaurantId
+      const pedidos = await this.orderRepository.listActivos(restaurantId)
       res.status(200).json(pedidos)
     } catch (error: any) {
       res.status(400).json({ error: error.message })
@@ -75,8 +80,8 @@ export class OrderController {
   pagarCuentaMesa = async (req: Request, res: Response) => {
     try {
       const mesaId = req.params.mesaId as string
-      const { restaurantId } = req.body
-      const pedidos = await this.orderRepository.findByMesa(mesaId, true)
+      const restaurantId = (req as any).user.restaurantId
+      const pedidos = await this.orderRepository.findByMesa(mesaId, restaurantId, true)
       
       if (pedidos.length === 0) {
         res.status(404).json({ error: 'No hay cuentas pendientes en esta mesa' })
@@ -108,7 +113,8 @@ export class OrderController {
 
   unirMesas = async (req: Request, res: Response) => {
     try {
-      const { mesaId, parentMesaId, restaurantId } = req.body
+      const { mesaId, parentMesaId } = req.body
+      const restaurantId = (req as any).user.restaurantId
       await this.unirMesasUC.execute(mesaId, restaurantId, parentMesaId)
       res.status(200).json({ message: `Mesa ${mesaId} unida a ${parentMesaId}` })
     } catch (error: any) {
@@ -119,7 +125,7 @@ export class OrderController {
   liberarMesa = async (req: Request, res: Response) => {
     try {
       const mesaId = req.params.mesaId as string
-      const { restaurantId } = req.body
+      const restaurantId = (req as any).user.restaurantId
       await this.liberarMesaUC.execute(mesaId, restaurantId)
       res.status(200).json({ message: `Mesa ${mesaId} liberada / independiente` })
     } catch (error: any) {
@@ -131,7 +137,8 @@ export class OrderController {
     try {
       const id = req.params.id as string
       const { estado } = req.body
-      await this.cambiarEstadoItemUC.execute(id, estado as OrderStatus)
+      const restaurantId = (req as any).user.restaurantId
+      await this.cambiarEstadoItemUC.execute(id, restaurantId, estado as OrderStatus)
       res.status(200).json({ message: 'Estado del plato actualizado' })
     } catch (error: any) {
       res.status(400).json({ error: error.message })
@@ -141,10 +148,22 @@ export class OrderController {
   obtenerPorId = async (req: Request, res: Response) => {
     try {
       const id = req.params.id as string
-      const order = await this.obtenerDetallePedido.execute(id)
+      const restaurantId = (req as any).user.restaurantId
+      const order = await this.obtenerDetallePedido.execute(id, restaurantId)
       res.status(200).json(order)
     } catch (error: any) {
       res.status(404).json({ error: error.message })
+    }
+  }
+
+  crearMesa = async (req: Request, res: Response) => {
+    try {
+      const { id, capacidad } = req.body
+      const restaurantId = (req as any).user.restaurantId
+      await this.crearMesaUC.execute({ id, restaurantId, capacidad })
+      res.status(201).json({ message: `Mesa ${id} creada correctamente` })
+    } catch (error: any) {
+      res.status(400).json({ error: error.message })
     }
   }
 }

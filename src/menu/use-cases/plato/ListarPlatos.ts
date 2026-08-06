@@ -8,7 +8,7 @@ export class ListarPlatos {
    * Recupera todos los platos actuales.
    * @returns Un arreglo con todos los platos.
    */
-  async execute(): Promise<Plato[]> {
-    return this.platoRepository.findAll()
+  async execute(restaurantId: string): Promise<Plato[]> {
+    return this.platoRepository.findAll(restaurantId)
   }
 }

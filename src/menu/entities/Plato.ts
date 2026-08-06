@@ -1,6 +1,7 @@
 export class Plato {
   constructor(
     public readonly id: string,
+    public readonly restaurantId: string,
     public categoryId: string,
     public name: string,
     public description: string | null,

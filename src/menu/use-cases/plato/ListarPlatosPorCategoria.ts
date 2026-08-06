@@ -11,12 +11,12 @@ export class ListarPlatosPorCategoria {
   /**
    * Devuelve todos los platos que pertenecen a una categoría específica.
    */
-  async execute(categoryId: string): Promise<Plato[]> {
-    const category = await this.categoryRepository.findById(categoryId)
+  async execute(categoryId: string, restaurantId: string): Promise<Plato[]> {
+    const category = await this.categoryRepository.findById(categoryId, restaurantId)
     if (!category) {
-      throw new Error('Categoría no encontrada')
+      throw new Error('Categoría no encontrada o acceso denegado')
     }
 
-    return this.platoRepository.findByCategory(categoryId)
+    return this.platoRepository.findByCategory(categoryId, restaurantId)
   }
 }

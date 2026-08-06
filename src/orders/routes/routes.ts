@@ -7,6 +7,7 @@ import { ObtenerDetallePedido } from '../use-cases/ObtenerDetallePedido'
 import { CambiarEstadoItem } from '../use-cases/CambiarEstadoItem'
 import { UnirMesas } from '../use-cases/UnirMesas'
 import { LiberarMesa } from '../use-cases/LiberarMesa'
+import { CrearMesa } from '../use-cases/CrearMesa'
 import { SequelizeOrderRepository } from '../repositories/implementations/SequelizeOrderRepository'
 import { SequelizeMesaRepository } from '../repositories/implementations/SequelizeMesaRepository'
 import { SequelizePlatoRepository } from '@/menu/repositories/implementations/SequelizePlatoRepository'
@@ -27,6 +28,7 @@ const cambiarEstadoItem = new CambiarEstadoItem(orderRepository)
 const obtenerDetallePedido = new ObtenerDetallePedido(orderRepository)
 const unirMesasUC = new UnirMesas(mesaRepository)
 const liberarMesaUC = new LiberarMesa(mesaRepository)
+const crearMesaUC = new CrearMesa(mesaRepository)
 
 const controller = new OrderController(
   crearPedido,
@@ -37,7 +39,8 @@ const controller = new OrderController(
   cambiarEstadoItem,
   obtenerDetallePedido,
   unirMesasUC,
-  liberarMesaUC
+  liberarMesaUC,
+  crearMesaUC
 )
 
 // Rutas
@@ -48,7 +51,8 @@ router.patch('/:id/estado', controller.cambiarEstado)
 router.get('/mesa/:mesaId/cuenta', controller.verCuentaMesa)
 router.post('/mesa/:mesaId/pagar', controller.pagarCuentaMesa)
 
-// Administración de Mesas (Uniones)
+// Administración de Mesas
+router.post('/mesas', controller.crearMesa)
 router.post('/mesas/unir', controller.unirMesas)
 router.delete('/mesas/:mesaId/liberar', controller.liberarMesa)
 

@@ -6,6 +6,7 @@ import { ListarPlatosPorCategoria } from '@/menu/use-cases/plato/ListarPlatosPor
 import { ActualizarPlato } from '@/menu/use-cases/plato/ActualizarPlato'
 import { EliminarPlato } from '@/menu/use-cases/plato/EliminarPlato'
 import { BuscarPlatosPorNombre } from '@/menu/use-cases/plato/BuscarPlatosPorNombre'
+import { ObtenerMenuPublico } from '@/menu/use-cases/ObtenerMenuPublico'
 import { CrearPlatoDTO } from '@/menu/dtos/CrearPlatoDTO'
 import { ActualizarPlatoDTO } from '@/menu/dtos/ActualizarPlatoDTO'
 
@@ -20,7 +21,8 @@ export class PlatoController {
     private readonly listarPlatosPorCategoriaUseCase: ListarPlatosPorCategoria,
     private readonly actualizarPlatoUseCase: ActualizarPlato,
     private readonly eliminarPlatoUseCase: EliminarPlato,
-    private readonly buscarPlatosPorNombreUseCase: BuscarPlatosPorNombre
+    private readonly buscarPlatosPorNombreUseCase: BuscarPlatosPorNombre,
+    private readonly obtenerMenuPublicoUseCase: ObtenerMenuPublico
   ) {}
 
   /**
@@ -29,7 +31,8 @@ export class PlatoController {
    */
   crearPlato = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { restaurantId, categoryId, name, description, tipo, price, imageUrl, available } = req.body
+      const restaurantId = (req.user as any).restaurantId
+      const { categoryId, name, description, tipo, price, imageUrl, available } = req.body
 
       // Validación básica
       if (!categoryId || !name || !tipo) {
@@ -61,9 +64,10 @@ export class PlatoController {
   /**
    * GET /platos
    */
-  listarPlatos = async (_req: Request, res: Response): Promise<void> => {
+  listarPlatos = async (req: Request, res: Response): Promise<void> => {
     try {
-      const platos = await this.listarPlatosUseCase.execute()
+      const restaurantId = (req.user as any).restaurantId
+      const platos = await this.listarPlatosUseCase.execute(restaurantId)
       res.status(200).json(platos)
     } catch (error: any) {
       res.status(500).json({ error: 'Error interno al obtener platos' })
@@ -75,8 +79,9 @@ export class PlatoController {
    */
   obtenerPlatoPorId = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { id } = req.params as { id: string }
-      const plato = await this.obtenerPlatoPorIdUseCase.execute(id)
+      const plato = await this.obtenerPlatoPorIdUseCase.execute(id, restaurantId)
       res.status(200).json(plato)
     } catch (error: any) {
       if (error.message.includes('no encontrado')) {
@@ -92,8 +97,9 @@ export class PlatoController {
    */
   listarPlatosPorCategoriaEndpoint = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { categoryId } = req.params as { categoryId: string }
-      const platos = await this.listarPlatosPorCategoriaUseCase.execute(categoryId)
+      const platos = await this.listarPlatosPorCategoriaUseCase.execute(categoryId, restaurantId)
       res.status(200).json(platos)
     } catch (error: any) {
       if (error.message.includes('no encontrada')) {
@@ -109,8 +115,9 @@ export class PlatoController {
    */
   actualizarPlato = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { id } = req.params as { id: string }
-      const { restaurantId, categoryId, name, description, tipo, price, imageUrl, available } = req.body
+      const { categoryId, name, description, tipo, price, imageUrl, available } = req.body
 
       const platoActualizado = await this.actualizarPlatoUseCase.execute({
         id,
@@ -141,8 +148,9 @@ export class PlatoController {
    */
   eliminarPlato = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { id } = req.params as { id: string }
-      await this.eliminarPlatoUseCase.execute(id)
+      await this.eliminarPlatoUseCase.execute(id, restaurantId)
       res.status(204).send()
     } catch (error: any) {
        if (error.message.includes('no encontrado')) {
@@ -158,6 +166,7 @@ export class PlatoController {
    */
   buscarPlatos = async (req: Request, res: Response): Promise<void> => {
     try {
+      const restaurantId = (req.user as any).restaurantId
       const { search } = req.query
 
       if (!search || typeof search !== 'string') {
@@ -165,10 +174,28 @@ export class PlatoController {
         return
       }
 
-      const platos = await this.buscarPlatosPorNombreUseCase.execute(search)
+      const platos = await this.buscarPlatosPorNombreUseCase.execute(search, restaurantId)
       res.status(200).json(platos)
     } catch (error: any) {
       res.status(500).json({ error: 'Error al buscar platos' })
+    }
+  }
+
+  /**
+   * GET /public/:slug
+   * Obtiene el menú completo de un restaurante por su slug (PÚBLICO).
+   */
+  obtenerMenuPublico = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { slug } = req.params as { slug: string }
+      const menu = await this.obtenerMenuPublicoUseCase.execute(slug)
+      res.status(200).json(menu)
+    } catch (error: any) {
+      if (error.message.includes('No encontrado')) {
+        res.status(404).json({ error: error.message })
+      } else {
+        res.status(500).json({ error: error.message })
+      }
     }
   }
 }

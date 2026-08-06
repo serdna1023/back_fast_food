@@ -4,21 +4,9 @@ import { MenuDiarioModel, MenuPlatoModel, PlatoModel, sequelize } from '@/Sequel
 import { MenuDiarioMapper } from '@/menu/mappers/MenuDiarioMapper'
 
 export class SequelizeMenuDiarioRepository implements IMenuDiarioRepository {
-  async findById(id: string): Promise<MenuDiario | null> {
-    const model = await MenuDiarioModel.findByPk(id, {
-      include: [{
-        model: MenuPlatoModel,
-        as: 'platos',
-        include: [{ model: PlatoModel, as: 'plato' }]
-      }]
-    })
-    if (!model) return null
-    return MenuDiarioMapper.toDomain(model)
-  }
-
-  async findByDate(date: Date): Promise<MenuDiario | null> {
+  async findById(id: string, restaurantId: string): Promise<MenuDiario | null> {
     const model = await MenuDiarioModel.findOne({
-      where: { fecha: date },
+      where: { id, restaurantId },
       include: [{
         model: MenuPlatoModel,
         as: 'platos',
@@ -29,8 +17,22 @@ export class SequelizeMenuDiarioRepository implements IMenuDiarioRepository {
     return MenuDiarioMapper.toDomain(model)
   }
 
-  async findAll(): Promise<MenuDiario[]> {
+  async findByDate(date: Date, restaurantId: string): Promise<MenuDiario | null> {
+    const model = await MenuDiarioModel.findOne({
+      where: { fecha: date, restaurantId },
+      include: [{
+        model: MenuPlatoModel,
+        as: 'platos',
+        include: [{ model: PlatoModel, as: 'plato' }]
+      }]
+    })
+    if (!model) return null
+    return MenuDiarioMapper.toDomain(model)
+  }
+
+  async findAll(restaurantId: string): Promise<MenuDiario[]> {
     const models = await MenuDiarioModel.findAll({
+      where: { restaurantId },
       order: [['fecha', 'DESC']],
       include: [{
         model: MenuPlatoModel,
@@ -44,13 +46,16 @@ export class SequelizeMenuDiarioRepository implements IMenuDiarioRepository {
   async save(menu: MenuDiario): Promise<void> {
     const transaction = await sequelize.transaction()
     try {
-      const existing = await MenuDiarioModel.findByPk(menu.id, { transaction })
+      const existing = await MenuDiarioModel.findOne({ 
+        where: { id: menu.id, restaurantId: menu.restaurantId }, 
+        transaction 
+      })
       
       const rawMenu = MenuDiarioMapper.toPersistence(menu)
 
       if (existing) {
         await existing.update(rawMenu, { transaction })
-        // Limpiamos platos anteriores para reemplazarlos
+        // Limpiamos platos anteriores para reemplazarlos (transaccional)
         await MenuPlatoModel.destroy({ where: { menuDiarioId: menu.id }, transaction })
       } else {
         await MenuDiarioModel.create(rawMenu, { transaction })
@@ -67,7 +72,7 @@ export class SequelizeMenuDiarioRepository implements IMenuDiarioRepository {
     }
   }
 
-  async delete(id: string): Promise<void> {
-    await MenuDiarioModel.destroy({ where: { id } })
+  async delete(id: string, restaurantId: string): Promise<void> {
+    await MenuDiarioModel.destroy({ where: { id, restaurantId } })
   }
 }

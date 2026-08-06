@@ -23,6 +23,7 @@ export class MenuPlatoDetalle {
 export class MenuDiario {
   constructor(
     public readonly id: string,
+    public readonly restaurantId: string,
     public precio: number,
     public fecha: Date,
     public creadoPor: string, // User ID del admin/empleado

@@ -15,18 +15,20 @@ export class SequelizeMesaRepository implements IMesaRepository {
       model.status,
       model.currentOrderId,
       model.parentMesaId,
-      model.isActive
+      model.isActive,
+      model.capacidad
     )
   }
 
   async save(mesa: Mesa): Promise<void> {
-    await MesaModel.update(
-      {
-        status: mesa.status,
-        currentOrderId: mesa.currentOrderId,
-        parentMesaId: mesa.parentMesaId,
-      },
-      { where: { id: mesa.id, restaurantId: mesa.restaurantId } }
-    )
+    await MesaModel.upsert({
+      id: mesa.id,
+      restaurantId: mesa.restaurantId,
+      status: mesa.status,
+      currentOrderId: mesa.currentOrderId,
+      parentMesaId: mesa.parentMesaId,
+      isActive: mesa.isActive,
+      capacidad: mesa.capacidad
+    })
   }
 }

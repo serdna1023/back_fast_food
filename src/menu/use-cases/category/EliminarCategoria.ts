@@ -11,20 +11,20 @@ export class EliminarCategoria {
    * Elimina una categoría asegurando reglas de integridad.
    * @param id - ID de la categoría a eliminar
    */
-  async execute(id: string): Promise<void> {
-    // 1. Verificamos que exista
-    const category = await this.categoryRepository.findById(id)
+  async execute(id: string, restaurantId: string): Promise<void> {
+    // 1. Verificamos que exista en este restaurante
+    const category = await this.categoryRepository.findById(id, restaurantId)
     if (!category) {
       throw new Error('Categoría no encontrada')
     }
 
-    // 2. Verificamos integridad referencial (ej: no eliminar si tiene platos asociados)
-    const items = await this.platoRepository.findByCategory(id)
+    // 2. Verificamos integridad referencial (ej: no eliminar si tiene platos asociados en el restaurante)
+    const items = await this.platoRepository.findByCategory(id, restaurantId)
     if (items.length > 0) {
       throw new Error('No se puede eliminar la categoría porque tiene platos asociados')
     }
 
     // 3. Eliminamos
-    await this.categoryRepository.delete(id)
+    await this.categoryRepository.delete(id, restaurantId)
   }
 }

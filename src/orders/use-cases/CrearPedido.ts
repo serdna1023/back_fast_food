@@ -79,7 +79,11 @@ export class CrearPedido {
         item.cantidad,
         precioUnitario,
         item.notas,
-        nombrePlato
+        nombrePlato,
+        null, // platoImageUrl
+        'PENDIENTE',
+        item.entradaId || null,
+        item.segundoId || null
       )
       newItems.push(orderItem)
     }

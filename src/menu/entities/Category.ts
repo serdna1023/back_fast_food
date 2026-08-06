@@ -1,6 +1,7 @@
 export class Category {
   constructor(
     public readonly id: string,
+    public readonly restaurantId: string,
     public name: string,
     public readonly createdAt: Date
   ) {}

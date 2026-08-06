@@ -5,8 +5,8 @@ import { getSocket } from '@/shared/infrastructure/websocket/socket.server'
 export class CambiarEstadoPedido {
   constructor(private readonly orderRepository: IOrderRepository) {}
 
-  async execute(orderId: string, nuevoEstado: OrderStatus): Promise<void> {
-    const order = await this.orderRepository.findById(orderId)
+  async execute(orderId: string, restaurantId: string, nuevoEstado: OrderStatus): Promise<void> {
+    const order = await this.orderRepository.findById(orderId, restaurantId)
     if (!order) throw new Error('Pedido no encontrado')
 
     // Lógica de dominio
@@ -20,9 +20,9 @@ export class CambiarEstadoPedido {
     // Notificación en tiempo real ENRIQUECIDA
     try {
       const io = getSocket()
-      // Emitimos el objeto completo para que el cliente vea el cambio de estado global
-      io.emit(`pedido_actualizado_${orderId}`, order)
-      io.emit('orden_actualizada_general', { orderId, estado: nuevoEstado })
+      // Emitimos solo a la sala del restaurante específico
+      io.to(`restaurant_${restaurantId}`).emit(`pedido_actualizado_${orderId}`, order)
+      io.to(`restaurant_${restaurantId}`).emit('orden_actualizada_general', { orderId, estado: nuevoEstado })
     } catch (e) {
       // Ignorar
     }
